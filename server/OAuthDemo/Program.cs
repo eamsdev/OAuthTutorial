@@ -1,11 +1,17 @@
+using Microsoft.AspNetCore.Authentication;
+using OAuthDemo.Application;
+using OAuthDemo.Domain;
+using OAuthDemo.Infrastructure;
+using OAuthDemo.Web;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services
+    .AddWebServices(builder.Configuration)
+    .AddInfrastructureServices()
+    .AddApplicationServices()
+    .AddDomainServices();
 
 var app = builder.Build();
 
@@ -17,9 +23,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
