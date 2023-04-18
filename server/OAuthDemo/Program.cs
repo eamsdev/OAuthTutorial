@@ -1,7 +1,10 @@
+using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 using OAuthDemo.Application;
 using OAuthDemo.Domain;
 using OAuthDemo.Infrastructure;
+using OAuthDemo.Infrastructure.Persistence;
 using OAuthDemo.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +23,18 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    if (dbContext.Database.IsRelational())
+    {
+        await dbContext.Database.MigrateAsync();
+    }
 }
 
+app.UseProblemDetails();
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+app.MapControllers().RequireAuthorization();
 app.Run();
