@@ -15,10 +15,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddWebServices(this IServiceCollection services, IConfiguration config)
     {
-        services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = IdentityConstants.ApplicationScheme;
-            })
+        services.AddAuthentication(IdentityConstants.ApplicationScheme)
+            .AddCookie(IdentityConstants.ExternalScheme)
+            .AddCookie(IdentityConstants.TwoFactorUserIdScheme)
             .AddCookie(IdentityConstants.ApplicationScheme, options =>
             {
                 options.Events.OnRedirectToLogin = c =>

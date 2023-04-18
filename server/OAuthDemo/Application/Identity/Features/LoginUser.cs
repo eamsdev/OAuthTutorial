@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using OAuthDemo.Domain.Identity;
@@ -36,7 +37,7 @@ public class LoginUser
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user is null)
             {
-                throw new InvalidOperationException();
+                throw new AuthenticationException();
             }
 
             await _signInManager.PasswordSignInAsync(user, request.Password, true, false);
