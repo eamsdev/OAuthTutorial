@@ -40,10 +40,11 @@ public class IdentityController : ControllerBase
         return Ok();
     }
     
-    [HttpGet("who")]
-    public async Task<IActionResult> WhoAmI()
+    [HttpGet("user")]
+    public async Task<IActionResult> User()
     {
-        return await Task.FromResult(Ok(_currentUserContext.User()));
+        var user = await _currentUserContext.User();
+        return Ok(user.Email);
     }
     
     [HttpPost("logout")]

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OAuthDemo.Application.Identity;
@@ -13,39 +14,69 @@ namespace OAuthDemo.Web;
 
 public static class DependencyInjection
 {
+    
     public static IServiceCollection AddWebServices(this IServiceCollection services, IConfiguration config)
     {
-        services.AddAuthentication(IdentityConstants.ApplicationScheme)
-            .AddCookie(IdentityConstants.ExternalScheme)
-            .AddCookie(IdentityConstants.TwoFactorUserIdScheme)
-            .AddCookie(IdentityConstants.ApplicationScheme, options =>
-            {
-                options.Events.OnRedirectToLogin = c =>
-                {
-                    c.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    return Task.FromResult<object>(null!);
-                };
-            });
-        services.AddAuthorization();
-        
+        services
+            .AddAuth()
+            .AddDb(config)
+            .AddProblemDetails()
+            .AddUserContext()
+            .AddControllerInternal()
+            .AddApiDoc();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddDb(this IServiceCollection services, IConfiguration config)
+    {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             var connectionString = config.GetConnectionString("DefaultConnection");
             options.UseSqlServer(connectionString);
         });
+        return services;
+    }
 
+    private static IServiceCollection AddAuth(this IServiceCollection services)
+    {
+        services
+            .AddAuthorization()
+            .AddAuthentication(IdentityConstants.ApplicationScheme)
+            .AddCookie(IdentityConstants.ExternalScheme)
+            .AddCookie(IdentityConstants.TwoFactorUserIdScheme)
+            .AddCookie(IdentityConstants.ApplicationScheme, ConfigureCookie);
+        
         services.AddIdentityCore<User>(options => { options.User.RequireUniqueEmail = true; })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager<SignInManager<User>>()
             .AddDefaultTokenProviders();
-        
+
+        return services;
+    }
+
+    private static void ConfigureCookie(CookieAuthenticationOptions options)
+    {
+        options.Events.OnRedirectToLogin = c =>
+        {
+            c.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.FromResult<object>(null!);
+        };
+    }
+
+    private static IServiceCollection AddProblemDetails(this IServiceCollection services)
+    {
         services.AddProblemDetails(opt =>
         {
             opt.MapToStatusCode<AuthenticationException>(StatusCodes.Status401Unauthorized);
             opt.IncludeExceptionDetails = (context, exception) => false;
-        }).AddControllers().AddProblemDetailsConventions()
-            .AddJsonOptions(x => x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
+        });
         
+        return services;
+    }
+    
+    private static IServiceCollection AddUserContext(this IServiceCollection services)
+    {
         services.AddScoped(sp =>
         {
             var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
@@ -55,13 +86,29 @@ public static class DependencyInjection
             return CurrentUserContext.Create(userManager, userEmail);
         });
         
-        services.AddControllers();
-        services.AddEndpointsApiExplorer(); // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        services.AddSwaggerGen();
-        services.ConfigureSwaggerGen(options =>
-        {
-            options.CustomSchemaIds(s => s.FullName?.Replace("+", "."));
-        });
+        return services;
+    }
+
+    private static IServiceCollection AddControllerInternal(this IServiceCollection services)
+    {
+
+        services.AddControllers()
+            .AddProblemDetailsConventions()
+            .AddJsonOptions(x => x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
+        
+        return services;
+    }
+    
+    private static IServiceCollection AddApiDoc(this IServiceCollection services)
+    {
+        services
+            .AddEndpointsApiExplorer()
+            .AddSwaggerGen()
+            .ConfigureSwaggerGen(options =>
+            {
+                options.CustomSchemaIds(s => s.FullName?.Replace("+", "."));
+            });
+        
         return services;
     }
 }

@@ -15,14 +15,14 @@ public class IdentityTests
         using var client = webAppFactory.CreateClient();
         
         // When
-        var response = await LoginUser(client);
+        var response = await RegisterAndLoginUser(client);
 
         // Then
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
     [Fact]
-    public async Task CantLogoutIfNotLoggedIn()
+    public async Task CannotLogoutIfNotLoggedIn()
     {
         // Given
         await using var webAppFactory = new CustomWebApplicationFactory(); 
@@ -42,16 +42,89 @@ public class IdentityTests
         // Given
         await using var webAppFactory = new CustomWebApplicationFactory(); 
         using var client = webAppFactory.CreateClient();
-        await LoginUser(client);
+        await RegisterAndLoginUser(client);
         
         // When
-        var response = await client.PostRouteAsJsonAsync("identity/logout", new LogoutUser.InputModel());
+        var response = await Logout(client);
 
         // Then
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
-    private static async Task<HttpResponseMessage> LoginUser(HttpClient client)
+    [Fact]
+    public async Task CanGetCurrentUserIfLoggedIn()
+    {
+        // Given
+        await using var webAppFactory = new CustomWebApplicationFactory(); 
+        using var client = webAppFactory.CreateClient();
+        await RegisterAndLoginUser(client);
+        
+        // When
+        var response = await client.GetAsync("identity/user");
+
+        // Then
+        response.IsSuccessStatusCode.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task CannotGetCurrentUserIfNotLoggedIn()
+    {
+        // Given
+        await using var webAppFactory = new CustomWebApplicationFactory(); 
+        using var client = webAppFactory.CreateClient();
+        
+        // When
+        var response = await client.GetAsync("identity/user");
+
+        // Then
+        response.IsSuccessStatusCode.Should().BeFalse();
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+    
+    [Fact]
+    public async Task CannotGetCurrentUserAfterLoggedOut()
+    {
+        // Given
+        await using var webAppFactory = new CustomWebApplicationFactory(); 
+        using var client = webAppFactory.CreateClient();
+        await RegisterAndLoginUser(client);
+        await Logout(client);
+        
+        // When
+        var response = await client.GetAsync("identity/user");
+
+        // Then
+        response.IsSuccessStatusCode.Should().BeFalse();
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+    
+    [Fact]
+    public async Task CanRegisterThenLogoutThenLoginThenAccessProtectedEndpoint()
+    {
+        // Given
+        await using var webAppFactory = new CustomWebApplicationFactory(); 
+        using var client = webAppFactory.CreateClient();
+        var user = await RegisterAndGetUser(client);
+        await Logout(client);
+        var loginInput = new LoginUser.InputModel
+        {
+            Email = user.Email,
+            Password = user.Password
+        };
+
+        // When
+        var response = await client.PostRouteAsJsonAsync("identity/login", loginInput);
+
+        // Then
+        response.IsSuccessStatusCode.Should().BeTrue();
+    }
+
+    private static async Task<HttpResponseMessage> Logout(HttpClient client)
+    {
+        return await client.PostRouteAsJsonAsync("identity/logout", new LogoutUser.InputModel());
+    }
+    
+    private static async Task<HttpResponseMessage> RegisterAndLoginUser(HttpClient client)
     {
         var registerRequest = new RegisterUser.InputModel
         {
@@ -60,5 +133,17 @@ public class IdentityTests
         };
         
         return await client.PostRouteAsJsonAsync("identity/register", registerRequest);
+    }
+    
+    private static async Task<RegisterUser.InputModel> RegisterAndGetUser(HttpClient client)
+    {
+        var registerRequest = new RegisterUser.InputModel
+        {
+            Email = Faker.InternetFaker.Email(),
+            Password = "Password_1234!!"
+        };
+        
+        await client.PostRouteAsJsonAsync("identity/register", registerRequest);
+        return registerRequest;
     }
 }

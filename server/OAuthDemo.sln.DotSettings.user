@@ -1,8 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4f471bad_002D2d61_002D41b7_002D9726_002Dd03cd8a0e166/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CanRegisterUser" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::F5F1E16C-E7BA-483A-B8A3-D7847E33A50E::net7.0::OAuthDemo.Tests.IdentityTests.CanRegisterUser&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::F5F1E16C-E7BA-483A-B8A3-D7847E33A50E::net7.0::OAuthDemo.Tests.IdentityTests.CanLogout&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::F5F1E16C-E7BA-483A-B8A3-D7847E33A50E::net7.0::OAuthDemo.Tests.IdentityTests.CantLogoutIfNotLoggedIn&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::F5F1E16C-E7BA-483A-B8A3-D7847E33A50E::net7.0::OAuthDemo.Tests.IdentityTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
