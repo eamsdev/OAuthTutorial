@@ -14,27 +14,15 @@ namespace OAuthDemo.Web;
 
 public static class DependencyInjection
 {
-    
-    public static IServiceCollection AddWebServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddWebServices(this IServiceCollection services)
     {
         services
             .AddAuth()
-            .AddDb(config)
             .AddProblemDetails()
             .AddUserContext()
             .AddControllerInternal()
             .AddApiDoc();
 
-        return services;
-    }
-    
-    private static IServiceCollection AddDb(this IServiceCollection services, IConfiguration config)
-    {
-        services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            var connectionString = config.GetConnectionString("DefaultConnection");
-            options.UseSqlServer(connectionString);
-        });
         return services;
     }
 
@@ -43,6 +31,7 @@ public static class DependencyInjection
         services
             .AddAuthorization()
             .AddAuthentication(IdentityConstants.ApplicationScheme)
+            // AddIdentityCore(...) doesnt add these by default
             .AddCookie(IdentityConstants.ExternalScheme)
             .AddCookie(IdentityConstants.TwoFactorUserIdScheme)
             .AddCookie(IdentityConstants.ApplicationScheme, ConfigureCookie);
