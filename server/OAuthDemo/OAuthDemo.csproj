@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <Folder Include="Infrastructure\Persistence\Configuration" />
+      <Folder Include="Web\IdentityProvider" />
     </ItemGroup>
 
 </Project>

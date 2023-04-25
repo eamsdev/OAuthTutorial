@@ -108,7 +108,7 @@ public class IdentityTests
         await Logout(client);
         var loginInput = new LoginUser.InputModel
         {
-            Email = user.Email,
+            Username = user.Username,
             Password = user.Password
         };
 
@@ -128,7 +128,7 @@ public class IdentityTests
     {
         var registerRequest = new RegisterUser.InputModel
         {
-            Email = Faker.InternetFaker.Email(),
+            Username = Faker.StringFaker.Alpha(8),
             Password = "Password_1234!!"
         };
         
@@ -139,7 +139,7 @@ public class IdentityTests
     {
         var registerRequest = new RegisterUser.InputModel
         {
-            Email = Faker.InternetFaker.Email(),
+            Username = Faker.StringFaker.Alpha(8),
             Password = "Password_1234!!"
         };
         

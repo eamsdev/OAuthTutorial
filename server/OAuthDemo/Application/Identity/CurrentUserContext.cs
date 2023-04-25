@@ -27,10 +27,10 @@ public class CurrentUserContext
 
     public static CurrentUserContext Create(
         UserManager<User> userManager, 
-        string? userEmail)
+        string? userName)
     {
         return new CurrentUserContext(
             new Lazy<Task<User?>>(async () => 
-                userEmail is null ? null : await userManager.FindByEmailAsync(userEmail)));
+                userName is null ? null : await userManager.FindByNameAsync(userName)));
     }
 }

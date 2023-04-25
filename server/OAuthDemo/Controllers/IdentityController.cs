@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using OAuthDemo.Application.Identity;
@@ -33,6 +34,18 @@ public class IdentityController : ControllerBase
     }
     
     [AllowAnonymous]
+    [HttpGet("login-github")]
+    public IResult Login()
+    {
+        return Results.Challenge(
+            new AuthenticationProperties
+            {
+                RedirectUri = "http://localhost:8080/"
+            }, 
+            authenticationSchemes: new List<string> { "Github" });
+    }
+    
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUser.InputModel inputModel)
     {
@@ -41,10 +54,10 @@ public class IdentityController : ControllerBase
     }
     
     [HttpGet("user")]
-    public async Task<IActionResult> User()
+    public async Task<IActionResult> GetUser()
     {
         var user = await _currentUserContext.User();
-        return Ok(user.Email);
+        return Ok(user.UserName);
     }
     
     [HttpPost("logout")]

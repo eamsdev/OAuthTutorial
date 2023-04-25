@@ -1,9 +1,13 @@
-﻿using System.Security.Authentication;
+﻿using System.Net.Http.Headers;
+using System.Security.Authentication;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OAuthDemo.Application.Identity;
@@ -32,16 +36,67 @@ public static class DependencyInjection
             .AddAuthorization()
             .AddAuthentication(IdentityConstants.ApplicationScheme)
             // AddIdentityCore(...) doesnt add these by default
-            .AddCookie(IdentityConstants.ExternalScheme)
+            .AddCookie(IdentityConstants.ApplicationScheme, ConfigureCookie)
+            .AddCookie(IdentityConstants.ExternalScheme, ConfigureCookie)
             .AddCookie(IdentityConstants.TwoFactorUserIdScheme)
-            .AddCookie(IdentityConstants.ApplicationScheme, ConfigureCookie);
+            .AddOAuth("Github", ConfigureGithub);
         
-        services.AddIdentityCore<User>(options => { options.User.RequireUniqueEmail = true; })
+        services.AddIdentityCore<User>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager<SignInManager<User>>()
             .AddDefaultTokenProviders();
 
         return services;
+    }
+
+    private static void ConfigureGithub(OAuthOptions options)
+    {
+        options.SignInScheme = IdentityConstants.ApplicationScheme;
+        options.ClientId = "78f484d7d1f631138c7e";
+        options.ClientSecret = "a85be6b4ca79729e6a0d21198aab46f8cad57c4e";
+        options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+        options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+        options.UserInformationEndpoint = "https://api.github.com/user";
+        options.CallbackPath = "/oauth/github-cb";
+        options.SaveTokens = true;
+        options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+        options.Scope.Add("user:email");
+        options.Events.OnCreatingTicket = OnCreatingTicket;
+    }
+
+    private static async Task OnCreatingTicket(OAuthCreatingTicketContext ctx)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, ctx.Options.UserInformationEndpoint);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ctx.AccessToken);
+        using var getClaimsResult = await ctx.Backchannel.SendAsync(request);
+        var user = await getClaimsResult.Content.ReadFromJsonAsync<JsonElement>();
+        ctx.RunClaimActions(user);
+        
+        // Sign in the user without a password
+        var signInManager = ctx.HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
+        var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
+        var existingUser = await userManager.FindByEmailAsync("eamsuwan93@gmail.com");
+        if (existingUser is null)
+        {
+            var newUser = new User
+            {
+                IdentityProvider = IdentityProvider.Github,
+                Email = "eamsuwan93@gmail.com",
+                UserName = "eamsuwan93@gmail.com",
+            };
+            var createUserResult = await userManager.CreateAsync(newUser);
+
+            if (!createUserResult.Succeeded)
+            {
+                throw new AuthenticationException();
+            }
+            await signInManager.SignInAsync(newUser, true);
+        }
+        else
+        {
+            await signInManager.SignInAsync(existingUser, true);
+        }
     }
 
     private static void ConfigureCookie(CookieAuthenticationOptions options)
@@ -70,9 +125,9 @@ public static class DependencyInjection
         {
             var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
             var userManager = sp.GetRequiredService<UserManager<User>>();
-            var userEmail = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
-
-            return CurrentUserContext.Create(userManager, userEmail);
+            var userName = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
+            //https://stackoverflow.com/questions/30946453/add-claim-on-successful-login
+            return CurrentUserContext.Create(userManager, userName);
         });
         
         return services;

@@ -10,8 +10,7 @@ public static class RegisterUser
 {
     public class InputModel : IRequest<ResponseModel>
     {
-        [EmailAddress] 
-        public required string Email { get; set; } = string.Empty;
+        public required string Username { get; set; } = string.Empty;
 
         public required string Password { get; set; } = string.Empty;
     }
@@ -37,8 +36,7 @@ public static class RegisterUser
             var user = new User
             {
                 IdentityProvider = IdentityProvider.Native,
-                UserName = request.Email,
-                Email = request.Email
+                UserName = request.Username
             };
             
             var createResult = await _userManager.CreateAsync(user, request.Password);

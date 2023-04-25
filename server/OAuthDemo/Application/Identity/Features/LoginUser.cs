@@ -10,8 +10,7 @@ public class LoginUser
 {
     public class InputModel : IRequest<ResponseModel>
     {
-        [EmailAddress] 
-        public required string Email { get; set; } = string.Empty;
+        public required string Username { get; set; } = string.Empty;
 
         public required string Password { get; set; } = string.Empty;
     }
@@ -34,7 +33,7 @@ public class LoginUser
         
         public async Task<ResponseModel> Handle(InputModel request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByNameAsync(request.Username);
             if (user is null)
             {
                 throw new AuthenticationException();
