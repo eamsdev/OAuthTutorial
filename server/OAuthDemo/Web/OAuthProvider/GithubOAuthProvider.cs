@@ -8,14 +8,14 @@ using OAuthDemo.Domain.Identity;
 
 namespace OAuthDemo.Web.OAuthProvider;
 
-public static class GithubOAuthService
+public static class GithubOAuthProvider
 {
     public static async Task OnCreatingTicket(OAuthCreatingTicketContext ctx)
     {
         var username = await RetrieveUsername(ctx);
         using var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
         await SignIn(ctx, 
-            await TryGetCurrentUser(userManager, username) 
+            await TryGetExistingUser(userManager, username) 
             ?? await CreateUser(userManager, username));
     }
 
@@ -36,9 +36,10 @@ public static class GithubOAuthService
         return newUser;
     }
 
-    private static async Task<User?> TryGetCurrentUser(UserManager<User> userManager, string userName)
+    private static async Task<User?> TryGetExistingUser(UserManager<User> userManager, string userName)
     {
-        return await userManager.FindByNameAsync(userName);
+        var user = await userManager.FindByNameAsync(userName);
+        return user?.IdentityProvider is not IdentityProvider.Github ? null : user;
     }
     
     private static async Task SignIn(OAuthCreatingTicketContext ctx, User user)

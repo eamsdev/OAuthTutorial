@@ -60,7 +60,7 @@ public static class DependencyInjection
         options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
         options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
         options.Scope.Add("user:email");
-        options.Events.OnCreatingTicket = GithubOAuthService.OnCreatingTicket;
+        options.Events.OnCreatingTicket = GithubOAuthProvider.OnCreatingTicket;
     }
 
     private static void ConfigureCookie(CookieAuthenticationOptions options)
