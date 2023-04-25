@@ -1,5 +1,4 @@
 using Hellang.Middleware.ProblemDetails;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using OAuthDemo.Application;
 using OAuthDemo.Domain;

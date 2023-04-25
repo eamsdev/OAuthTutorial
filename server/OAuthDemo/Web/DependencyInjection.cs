@@ -1,7 +1,5 @@
-﻿using System.Net.Http.Headers;
-using System.Security.Authentication;
+﻿using System.Security.Authentication;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
@@ -9,7 +7,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using OAuthDemo.Application.Identity;
 using OAuthDemo.Domain.Identity;
 using OAuthDemo.Infrastructure.Persistence;

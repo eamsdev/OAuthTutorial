@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Authentication;
+﻿using System.Security.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using OAuthDemo.Domain.Identity;
