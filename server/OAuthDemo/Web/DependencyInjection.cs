@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using OAuthDemo.Application.Identity;
 using OAuthDemo.Domain.Identity;
 using OAuthDemo.Infrastructure.Persistence;
+using OAuthDemo.Web.OAuthProvider;
 
 namespace OAuthDemo.Web;
 
@@ -62,41 +63,7 @@ public static class DependencyInjection
         options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
         options.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
         options.Scope.Add("user:email");
-        options.Events.OnCreatingTicket = OnCreatingTicket;
-    }
-
-    private static async Task OnCreatingTicket(OAuthCreatingTicketContext ctx)
-    {
-        using var request = new HttpRequestMessage(HttpMethod.Get, ctx.Options.UserInformationEndpoint);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ctx.AccessToken);
-        using var getClaimsResult = await ctx.Backchannel.SendAsync(request);
-        var user = await getClaimsResult.Content.ReadFromJsonAsync<JsonElement>();
-        ctx.RunClaimActions(user);
-        
-        // Sign in the user without a password
-        var signInManager = ctx.HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
-        var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
-        var existingUser = await userManager.FindByEmailAsync("eamsuwan93@gmail.com");
-        if (existingUser is null)
-        {
-            var newUser = new User
-            {
-                IdentityProvider = IdentityProvider.Github,
-                Email = "eamsuwan93@gmail.com",
-                UserName = "eamsuwan93@gmail.com",
-            };
-            var createUserResult = await userManager.CreateAsync(newUser);
-
-            if (!createUserResult.Succeeded)
-            {
-                throw new AuthenticationException();
-            }
-            await signInManager.SignInAsync(newUser, true);
-        }
-        else
-        {
-            await signInManager.SignInAsync(existingUser, true);
-        }
+        options.Events.OnCreatingTicket = GithubOAuthService.OnCreatingTicket;
     }
 
     private static void ConfigureCookie(CookieAuthenticationOptions options)

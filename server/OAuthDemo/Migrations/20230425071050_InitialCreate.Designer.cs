@@ -12,7 +12,7 @@ using OAuthDemo.Infrastructure.Persistence;
 namespace OAuthDemo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230418115801_InitialCreate")]
+    [Migration("20230425071050_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
