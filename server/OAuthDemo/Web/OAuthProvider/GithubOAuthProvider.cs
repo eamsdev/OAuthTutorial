@@ -27,7 +27,6 @@ public static class GithubOAuthProvider
             UserName = userName,
         };
         var createdUserResult = await userManager.CreateAsync(newUser);
-
         if (!createdUserResult.Succeeded)
         {
             throw new AuthenticationException();
