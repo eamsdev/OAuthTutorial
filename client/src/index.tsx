@@ -1,6 +1,6 @@
 import App from './App';
 import './assets/scss/site.scss';
-import theme from './themes/theme';
+import theme from './styles/theme';
 import { Container, ThemeProvider } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import React from 'react';

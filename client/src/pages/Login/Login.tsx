@@ -1,28 +1,24 @@
-import theme from '../themes/theme';
+import theme from '../../styles/theme';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import {
-  Avatar,
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  FormControlLabel,
-  Grid,
-  Link,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { red } from '@mui/material/colors';
+import { Avatar, Box, Button, Checkbox, Container, FormControlLabel, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
+
+
+type LoginForm = {
+  email?: string,
+  password?: string
+}
 
 const Login = () => {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+  const [form, setForm] = useState<LoginForm>({})
+  const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+    console.log(form)
+  };
+  const onChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = evt.target;
+    setForm({ ...form, [name]: value });
   };
 
   return (
@@ -35,13 +31,13 @@ const Login = () => {
           alignItems: 'center',
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: `${red[900]}` }}>
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -50,6 +46,8 @@ const Login = () => {
             name="email"
             autoComplete="email"
             autoFocus
+            value={form["email"]}
+            onChange={onChange}
           />
           <TextField
             margin="normal"
@@ -59,16 +57,22 @@ const Login = () => {
             label="Password"
             type="password"
             autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
+            value={form["password"]}
+            onChange={onChange}
           />
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
             <Typography textTransform={'none'}>Sign in</Typography>
           </Button>
-          <Button fullWidth variant="github" sx={{ mt: 1, mb: 2 }} onClick={() => console.warn('TODO: Signin with Github')}>
-            <Typography textTransform={'none'} mr={1}>Sign in with</Typography><GitHubIcon />
+          <Button
+            fullWidth
+            variant="github"
+            sx={{ mt: 1, mb: 2 }}
+            onClick={() => console.warn('TODO: Signin with Github')}
+          >
+            <Typography textTransform={'none'} mr={1}>
+              Sign in with
+            </Typography>
+            <GitHubIcon />
           </Button>
         </Box>
       </Box>
