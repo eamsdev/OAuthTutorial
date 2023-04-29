@@ -5,6 +5,12 @@ import { useContext, useEffect } from 'react';
 const Home = () => {
   const { username } = useContext(UserContext);
 
+  const textDisplay = (text: string) => (
+    <Typography fontWeight={'bold'} fontSize={'40px'}>
+      {text}
+    </Typography>
+  );
+
   return (
     <Container component="main" maxWidth="sm">
       <Box
@@ -15,15 +21,9 @@ const Home = () => {
           alignItems: 'center',
         }}
       >
-        {!!username ? (
-          <Typography fontWeight={'bold'} fontSize={'40px'}>
-            🛂 You are logged in as: {username} 🛂
-          </Typography>
-        ) : (
-          <Typography fontWeight={'bold'} fontSize={'40px'}>
-            ⛔️You are not logged in.⛔️
-          </Typography>
-        )}
+        {!!username
+          ? textDisplay(`🛂 You are logged in as: ${username} 🛂`)
+          : textDisplay(`⛔️You are not logged in.⛔️`)}
       </Box>
     </Container>
   );
