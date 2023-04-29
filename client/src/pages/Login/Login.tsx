@@ -1,4 +1,3 @@
-import theme from '../../styles/theme';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Avatar, Box, Button, Checkbox, Container, FormControlLabel, TextField, Typography } from '@mui/material';
@@ -10,13 +9,18 @@ type LoginForm = {
   password?: string
 }
 
+type FormEvent = React.FormEvent<HTMLFormElement>;
+type ChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+
 const Login = () => {
   const [form, setForm] = useState<LoginForm>({})
-  const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
+
+  const onSubmit = (evt: FormEvent) => {
     evt.preventDefault();
-    console.log(form)
+    console.log(form);
   };
-  const onChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
+  const onChange = (evt: ChangeEvent) => {
     const { name, value } = evt.target;
     setForm({ ...form, [name]: value });
   };
