@@ -1,12 +1,17 @@
+import { IdentityApi } from '../../api';
 import { UserContext } from '../../contexts';
-import { Container, Box, Typography } from '@mui/material';
+import { Container, Box, Typography, CircularProgress } from '@mui/material';
 import { useContext, useEffect } from 'react';
 
 const Home = () => {
-  const { username } = useContext(UserContext);
+  const { username, refreshUser, state } = useContext(UserContext);
 
+  useEffect(() => {
+    refreshUser();
+  }, []);
+  
   const textDisplay = (text: string) => (
-    <Typography fontWeight={'bold'} fontSize={'40px'}>
+    <Typography fontWeight={'bold'} fontSize={'36px'}>
       {text}
     </Typography>
   );
@@ -21,9 +26,13 @@ const Home = () => {
           alignItems: 'center',
         }}
       >
-        {!!username
-          ? textDisplay(`🛂 You are logged in as: ${username} 🛂`)
-          : textDisplay(`⛔️You are not logged in.⛔️`)}
+        {state === 'loading' || state === 'idle' ? (
+          <CircularProgress />
+        ) : !!username ? (
+          textDisplay(`🛂 You are logged in as: ${username}`)
+        ) : (
+          textDisplay(`⛔️ You are not logged in.`)
+        )}
       </Box>
     </Container>
   );

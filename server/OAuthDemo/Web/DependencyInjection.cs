@@ -6,6 +6,7 @@ using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using OAuthDemo.Application.Identity;
 using OAuthDemo.Domain.Identity;
@@ -20,10 +21,11 @@ public static class DependencyInjection
     {
         services
             .AddAuth()
+            .AddCors(ConfigureCors)
             .AddProblemDetails()
             .AddUserContext()
             .AddControllerInternal()
-            .AddApiDoc();
+            .AddApiDoc(); 
 
         return services;
     }
@@ -65,6 +67,9 @@ public static class DependencyInjection
 
     private static void ConfigureCookie(CookieAuthenticationOptions options)
     {
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Events.OnRedirectToLogin = c =>
         {
             c.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -118,5 +123,19 @@ public static class DependencyInjection
             });
         
         return services;
+    }
+
+    private static void ConfigureCors(CorsOptions opt)
+    {
+        opt.AddPolicy("CorsPolicy", policy =>
+        {
+            policy
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .WithExposedHeaders(
+                    "WWW-Authenticate") // expose header so client can understand when to log user out
+                .WithOrigins("http://localhost:8080"); // required when access resource from a different domain
+        });
     }
 }

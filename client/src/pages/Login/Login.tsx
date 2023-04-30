@@ -1,6 +1,7 @@
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Avatar, Box, Button, Checkbox, Container, FormControlLabel, TextField, Typography } from '@mui/material';
+import { IdentityApi } from '../../api';
 import { useState } from 'react';
 
 
@@ -17,7 +18,7 @@ const Login = () => {
 
   const onSubmit = (evt: FormEvent) => {
     evt.preventDefault();
-    console.log(form);
+    // TODO:
   };
 
   const onChange = (evt: ChangeEvent) => {
@@ -71,7 +72,7 @@ const Login = () => {
             fullWidth
             variant="github"
             sx={{ mt: 1, mb: 2 }}
-            onClick={() => console.warn('TODO: Signin with Github')}
+            onClick={() => location.href=`${IdentityApi.getGithubSigninRoute()}`}
           >
             <Typography textTransform={'none'} mr={1}>
               Sign in with

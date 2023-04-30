@@ -31,6 +31,7 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+app.UseCors("CorsPolicy");
 app.UseProblemDetails();
 app.UseHttpsRedirection();
 app.UseAuthentication();
