@@ -17,7 +17,7 @@ const Home = () => {
   );
 
   return (
-    <Container component="main" maxWidth="sm">
+    <Container component="main" maxWidth="lg">
       <Box
         sx={{
           marginTop: 8,
