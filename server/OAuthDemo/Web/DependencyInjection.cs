@@ -69,7 +69,7 @@ public static class DependencyInjection
     {
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.None;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.Events.OnRedirectToLogin = c =>
         {
             c.Response.StatusCode = StatusCodes.Status401Unauthorized;
